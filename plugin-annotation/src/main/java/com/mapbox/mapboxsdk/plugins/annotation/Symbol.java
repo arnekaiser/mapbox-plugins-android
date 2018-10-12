@@ -2,6 +2,7 @@
 
 package com.mapbox.mapboxsdk.plugins.annotation;
 
+import android.graphics.PointF;
 import android.support.annotation.UiThread;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -78,6 +79,7 @@ public class Symbol extends Annotation {
   //}
 
   // Property accessors
+
   /**
    * Get the IconSize property
    *
@@ -144,15 +146,15 @@ public class Symbol extends Annotation {
   /**
    * Get the IconOffset property
    *
-   * @return property wrapper value around Float[]
+   * @return PointF value for Float[]
    */
-  public Float[] getIconOffset() {
+  public PointF getIconOffset() {
     JsonArray jsonArray = jsonObject.getAsJsonArray("icon-offset");
     Float[] value = new Float[jsonArray.size()];
     for (int i = 0; i < jsonArray.size(); i++) {
       value[i] = jsonArray.get(i).getAsFloat();
     }
-    return value;
+    return new PointF(value[0], value[1]);
   }
 
   /**
@@ -160,9 +162,10 @@ public class Symbol extends Annotation {
    * <p>
    * To update the symbol on the map use {@link SymbolManager#update(Annotation)}.
    * <p>
-   * @param value constant property value for Float[]
+   * @param pointF value for Float[]
    */
-  public void setIconOffset(Float[] value) {
+  public void setIconOffset(PointF pointF) {
+    Float[] value = new Float[]{pointF.x, pointF.y};
     JsonArray jsonArray = new JsonArray();
     for (Float element : value) {
       jsonArray.add(element);
@@ -391,15 +394,15 @@ public class Symbol extends Annotation {
   /**
    * Get the TextOffset property
    *
-   * @return property wrapper value around Float[]
+   * @return PointF value for Float[]
    */
-  public Float[] getTextOffset() {
+  public PointF getTextOffset() {
     JsonArray jsonArray = jsonObject.getAsJsonArray("text-offset");
     Float[] value = new Float[jsonArray.size()];
     for (int i = 0; i < jsonArray.size(); i++) {
       value[i] = jsonArray.get(i).getAsFloat();
     }
-    return value;
+    return new PointF(value[0], value[1]);
   }
 
   /**
@@ -407,9 +410,10 @@ public class Symbol extends Annotation {
    * <p>
    * To update the symbol on the map use {@link SymbolManager#update(Annotation)}.
    * <p>
-   * @param value constant property value for Float[]
+   * @param pointF value for Float[]
    */
-  public void setTextOffset(Float[] value) {
+  public void setTextOffset(PointF pointF) {
+    Float[] value = new Float[]{pointF.x, pointF.y};
     JsonArray jsonArray = new JsonArray();
     for (Float element : value) {
       jsonArray.add(element);
@@ -626,5 +630,4 @@ public class Symbol extends Annotation {
   public void setTextHaloBlur(Float value) {
     jsonObject.addProperty("text-halo-blur", value);
   }
-
 }

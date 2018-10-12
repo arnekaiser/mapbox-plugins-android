@@ -2,6 +2,7 @@
 
 package com.mapbox.mapboxsdk.plugins.annotation;
 
+import android.graphics.PointF;
 import android.support.annotation.UiThread;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -59,6 +60,7 @@ public class Fill extends Annotation {
   }
 
   // Property accessors
+
   /**
    * Get the FillOpacity property
    *
@@ -142,5 +144,4 @@ public class Fill extends Annotation {
   public void setFillPattern(String value) {
     jsonObject.addProperty("fill-pattern", value);
   }
-
 }

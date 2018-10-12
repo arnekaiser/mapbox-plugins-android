@@ -2,6 +2,7 @@
 
 package com.mapbox.mapboxsdk.plugins.annotation;
 
+import android.graphics.PointF;
 import android.support.annotation.UiThread;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -55,6 +56,7 @@ public class Line extends Annotation {
   }
 
   // Property accessors
+
   /**
    * Get the LineJoin property
    *
@@ -222,5 +224,4 @@ public class Line extends Annotation {
   public void setLinePattern(String value) {
     jsonObject.addProperty("line-pattern", value);
   }
-
 }

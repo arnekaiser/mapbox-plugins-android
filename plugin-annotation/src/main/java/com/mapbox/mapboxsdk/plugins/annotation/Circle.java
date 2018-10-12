@@ -2,6 +2,7 @@
 
 package com.mapbox.mapboxsdk.plugins.annotation;
 
+import android.graphics.PointF;
 import android.support.annotation.UiThread;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -51,6 +52,7 @@ public class Circle extends Annotation {
   }
 
   // Property accessors
+
   /**
    * Get the CircleRadius property
    *
@@ -197,5 +199,4 @@ public class Circle extends Annotation {
   public void setCircleStrokeOpacity(Float value) {
     jsonObject.addProperty("circle-stroke-opacity", value);
   }
-
 }
