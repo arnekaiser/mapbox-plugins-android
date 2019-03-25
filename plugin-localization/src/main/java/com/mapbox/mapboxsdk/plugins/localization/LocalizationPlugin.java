@@ -34,12 +34,13 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
  * The plugin uses a fallback logic in case there are missing resources
  * - if there is no available localization for a label, the plugin will use local name, if it's Latin script based,
  * otherwise English. Traditional Chinese falls back to Simplified Chinese before executing before mentioned logic.
- * <p>
- * The plugin only support Mapbox sources:<br/>
- * - mapbox.mapbox-streets-v6<br/>
- * - mapbox.mapbox-streets-v7<br/>
- * - mapbox.mapbox-streets-v8
- *
+ * </p>
+ * The plugin only support Mapbox sources:
+ * <ul>
+ * <li>- mapbox.mapbox-streets-v6</li>
+ * <li>- mapbox.mapbox-streets-v7</li>
+ * <li>- mapbox.mapbox-streets-v8</li>
+ * </ul>
  * @since 0.1.0
  */
 @UiThread
@@ -88,12 +89,6 @@ public final class LocalizationPlugin {
   private static final String STEP_REGEX = "\\[\"zoom\"], ";
   private static final String STEP_TEMPLATE = "[\"zoom\"], \"\", ";
 
-  // legacy token syntax
-  private static final String TOKEN_TEMPLATE = "{%s}";
-  private static final String TOKEN_REGEX = "[{]((name).*?)[}]";
-  private static final String TOKEN_NAME = "{name";
-  private static final String TOKEN_ABBR = "{abbr}";
-
   // configuration
   private final MapboxMap mapboxMap;
   private MapLocale mapLocale;
@@ -129,6 +124,22 @@ public final class LocalizationPlugin {
       }
     };
     mapView.addOnWillStartLoadingMapListener(styleLoadListener);
+  }
+
+  private MapLocale getChineseMapLocale(MapLocale mapLocale, boolean isStreetsV7) {
+    if (isStreetsV7) {
+      // streets v7 supports name_zh(MapLocale.CHINA) and name_zh-Hans(MapLocale.CHINESE_HANS)
+      // https://docs.mapbox.com/vector-tiles/reference/mapbox-streets-v7/#name-fields
+      if (mapLocale.equals(MapLocale.CHINESE_HANS)) {
+        return mapLocale;
+      } else {
+        return MapLocale.CHINA;
+      }
+    } else {
+      // streets V6 only supports name_zh(MapLocale.CHINA)
+      // https://docs.mapbox.com/vector-tiles/reference/mapbox-streets-v6/#name-fields
+      return MapLocale.CHINA;
+    }
   }
 
   /*
@@ -195,9 +206,10 @@ public final class LocalizationPlugin {
   public void setMapLanguage(@NonNull Locale locale, boolean acceptFallback) {
     MapLocale mapLocale = MapLocale.getMapLocale(locale, acceptFallback);
     if (mapLocale != null) {
+      Timber.d("Locale: %s, set MapLocale: %s", locale.toString(), mapLocale.getMapLanguage());
       setMapLanguage(mapLocale);
     } else {
-      Timber.e("Couldn't match Locale %s to a MapLocale", locale.getDisplayName());
+      Timber.e("Couldn't match Locale %s %s to a MapLocale", locale.toString(), locale.getDisplayName());
     }
   }
 
@@ -226,10 +238,9 @@ public final class LocalizationPlugin {
               if (isStreetsV8) {
                 convertExpressionV8(mapLocale, layer, textFieldProperty);
               } else {
-                convertExpression(mapLocale, layer, textFieldProperty);
+                boolean isStreetsV7 = sourceIsStreetsV7(source);
+                convertExpression(mapLocale, layer, textFieldProperty, isStreetsV7);
               }
-            } else {
-              convertToken(mapLocale, layer, textFieldProperty);
             }
           }
         }
@@ -247,19 +258,19 @@ public final class LocalizationPlugin {
     }
   }
 
-  private void convertToken(@NonNull MapLocale mapLocale, Layer layer, PropertyValue<?> textFieldProperty) {
-    String text = (String) textFieldProperty.getValue();
-    if (text != null && (text.contains(TOKEN_NAME) || text.contains(TOKEN_ABBR))) {
-      layer.setProperties(textField(text.replaceAll(
-        TOKEN_REGEX, String.format(TOKEN_TEMPLATE, mapLocale.getMapLanguage())
-      )));
-    }
-  }
-
-  private void convertExpression(@NonNull MapLocale mapLocale, Layer layer, PropertyValue<?> textFieldProperty) {
+  private void convertExpression(@NonNull MapLocale mapLocale, Layer layer,
+                                 PropertyValue<?> textFieldProperty, boolean isStreetsV7) {
     Expression textFieldExpression = textFieldProperty.getExpression();
     if (textFieldExpression != null) {
-      String text = textFieldExpression.toString().replaceAll(EXPRESSION_REGEX, mapLocale.getMapLanguage());
+      MapLocale newMapLocale = mapLocale;
+      String mapLanguage = mapLocale.getMapLanguage();
+      if (mapLanguage.startsWith("name_zh")) {
+        // need to re-get mapLocale, since the default is for street-v8
+        newMapLocale = getChineseMapLocale(mapLocale, isStreetsV7);
+        Timber.d("reset mapLocale to: %s", newMapLocale.getMapLanguage());
+      }
+
+      String text = textFieldExpression.toString().replaceAll(EXPRESSION_REGEX, newMapLocale.getMapLanguage());
       if (text.startsWith("[\"step") && textFieldExpression.toArray().length % 2 == 0) {
         // got an invalid step expression from core, we need to add an additional name_x into step
         text = text.replaceAll(STEP_REGEX, STEP_TEMPLATE);
@@ -276,11 +287,9 @@ public final class LocalizationPlugin {
 
       String mapLanguage = mapLocale.getMapLanguage();
       if (!mapLanguage.equals(MapLocale.ENGLISH)) {
-        if (mapLanguage.equals(MapLocale.CHINESE)) {
-          // in streets v8 tiles chinese is declared as "name_zh-Hant" instead of "name_zh"
-          mapLanguage = MapLocale.CHINESE_V8;
+        if (mapLanguage.equals("name_zh")) {
+          mapLanguage = MapLocale.SIMPLIFIED_CHINESE;
         }
-
         stringExpression = stringExpression.replaceAll(EXPRESSION_V8_REGEX_BASE,
           String.format(Locale.US,
             EXPRESSION_V8_TEMPLATE_LOCALIZED,
@@ -361,6 +370,14 @@ public final class LocalizationPlugin {
           }
         }
       }
+    }
+    return false;
+  }
+
+  private boolean sourceIsStreetsV7(Source source) {
+    if (source instanceof VectorSource) {
+      String url = ((VectorSource) source).getUrl();
+      return url != null && url.contains("mapbox.mapbox-streets-v7");
     }
     return false;
   }

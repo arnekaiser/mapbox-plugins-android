@@ -15,6 +15,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.layers.Property;
 
@@ -198,7 +199,37 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
    * <p>
    * Symbols are going to be created only for features with a matching geometry.
    * <p>
-   * You can inspect a full list of supported feature properties in {@link SymbolOptions#fromFeature(Feature)}.
+   * All supported properties are:<br>
+   * "icon-size" - Float<br>
+   * "icon-image" - String<br>
+   * "icon-rotate" - Float<br>
+   * "icon-offset" - Float[]<br>
+   * "icon-anchor" - String<br>
+   * "text-field" - String<br>
+   * "text-font" - String[]<br>
+   * "text-size" - Float<br>
+   * "text-max-width" - Float<br>
+   * "text-letter-spacing" - Float<br>
+   * "text-justify" - String<br>
+   * "text-anchor" - String<br>
+   * "text-rotate" - Float<br>
+   * "text-transform" - String<br>
+   * "text-offset" - Float[]<br>
+   * "icon-opacity" - Float<br>
+   * "icon-color" - String<br>
+   * "icon-halo-color" - String<br>
+   * "icon-halo-width" - Float<br>
+   * "icon-halo-blur" - Float<br>
+   * "text-opacity" - Float<br>
+   * "text-color" - String<br>
+   * "text-halo-color" - String<br>
+   * "text-halo-width" - Float<br>
+   * "text-halo-blur" - Float<br>
+   * Learn more about above properties in the <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/">Style specification</a>.
+   * <p>
+   * Out of spec properties:<br>
+   * "z-index" - Integer, z-index of the feature within the manager<br>
+   * "is-draggable" - Boolean, true if the symbol should be draggable, false otherwise
    *
    * @param json the GeoJSON defining the list of symbols to build
    * @return the list of built symbols
@@ -213,7 +244,37 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
    * <p>
    * Symbols are going to be created only for features with a matching geometry.
    * <p>
-   * You can inspect a full list of supported feature properties in {@link SymbolOptions#fromFeature(Feature)}.
+   * All supported properties are:<br>
+   * "icon-size" - Float<br>
+   * "icon-image" - String<br>
+   * "icon-rotate" - Float<br>
+   * "icon-offset" - Float[]<br>
+   * "icon-anchor" - String<br>
+   * "text-field" - String<br>
+   * "text-font" - String[]<br>
+   * "text-size" - Float<br>
+   * "text-max-width" - Float<br>
+   * "text-letter-spacing" - Float<br>
+   * "text-justify" - String<br>
+   * "text-anchor" - String<br>
+   * "text-rotate" - Float<br>
+   * "text-transform" - String<br>
+   * "text-offset" - Float[]<br>
+   * "icon-opacity" - Float<br>
+   * "icon-color" - String<br>
+   * "icon-halo-color" - String<br>
+   * "icon-halo-width" - Float<br>
+   * "icon-halo-blur" - Float<br>
+   * "text-opacity" - Float<br>
+   * "text-color" - String<br>
+   * "text-halo-color" - String<br>
+   * "text-halo-width" - Float<br>
+   * "text-halo-blur" - Float<br>
+   * Learn more about above properties in the <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/">Style specification</a>.
+   * <p>
+   * Out of spec properties:<br>
+   * "z-index" - Integer, z-index of the feature within the manager<br>
+   * "is-draggable" - Boolean, true if the symbol should be draggable, false otherwise
    *
    * @param featureCollection the featureCollection defining the list of symbols to build
    * @return the list of built symbols
@@ -256,6 +317,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
   // Property accessors
   /**
    * Get the SymbolPlacement property
+   * <p>
+   * Label placement relative to its geometry.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -265,6 +329,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the SymbolPlacement property
+   * <p>
+   * Label placement relative to its geometry.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -276,6 +343,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the SymbolSpacing property
+   * <p>
+   * Distance between two symbol anchors.
+   * </p>
    *
    * @return property wrapper value around Float
    */
@@ -285,6 +355,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the SymbolSpacing property
+   * <p>
+   * Distance between two symbol anchors.
+   * </p>
    *
    * @param value property wrapper value around Float
    */
@@ -296,6 +369,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the SymbolAvoidEdges property
+   * <p>
+   * If true, the symbols will not cross tile edges to avoid mutual collisions. Recommended in layers that don't have enough padding in the vector tile to prevent collisions, or if it is a point symbol layer placed after a line symbol layer.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -305,6 +381,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the SymbolAvoidEdges property
+   * <p>
+   * If true, the symbols will not cross tile edges to avoid mutual collisions. Recommended in layers that don't have enough padding in the vector tile to prevent collisions, or if it is a point symbol layer placed after a line symbol layer.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -316,6 +395,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconAllowOverlap property
+   * <p>
+   * If true, the icon will be visible even if it collides with other previously drawn symbols.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -325,6 +407,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconAllowOverlap property
+   * <p>
+   * If true, the icon will be visible even if it collides with other previously drawn symbols.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -336,6 +421,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconIgnorePlacement property
+   * <p>
+   * If true, other symbols can be visible even if they collide with the icon.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -345,6 +433,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconIgnorePlacement property
+   * <p>
+   * If true, other symbols can be visible even if they collide with the icon.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -356,6 +447,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconOptional property
+   * <p>
+   * If true, text will display without their corresponding icons when the icon collides with other symbols and the text does not.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -365,6 +459,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconOptional property
+   * <p>
+   * If true, text will display without their corresponding icons when the icon collides with other symbols and the text does not.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -376,6 +473,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconRotationAlignment property
+   * <p>
+   * In combination with {@link Property.SYMBOL_PLACEMENT}, determines the rotation behavior of icons.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -385,6 +485,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconRotationAlignment property
+   * <p>
+   * In combination with {@link Property.SYMBOL_PLACEMENT}, determines the rotation behavior of icons.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -396,6 +499,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconTextFit property
+   * <p>
+   * Scales the icon to fit around the associated text.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -405,6 +511,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconTextFit property
+   * <p>
+   * Scales the icon to fit around the associated text.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -416,6 +525,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconTextFitPadding property
+   * <p>
+   * Size of the additional area added to dimensions determined by {@link Property.ICON_TEXT_FIT}, in clockwise order: top, right, bottom, left.
+   * </p>
    *
    * @return property wrapper value around Float[]
    */
@@ -425,6 +537,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconTextFitPadding property
+   * <p>
+   * Size of the additional area added to dimensions determined by {@link Property.ICON_TEXT_FIT}, in clockwise order: top, right, bottom, left.
+   * </p>
    *
    * @param value property wrapper value around Float[]
    */
@@ -436,6 +551,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconPadding property
+   * <p>
+   * Size of the additional area around the icon bounding box used for detecting symbol collisions.
+   * </p>
    *
    * @return property wrapper value around Float
    */
@@ -445,6 +563,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconPadding property
+   * <p>
+   * Size of the additional area around the icon bounding box used for detecting symbol collisions.
+   * </p>
    *
    * @param value property wrapper value around Float
    */
@@ -456,6 +577,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconKeepUpright property
+   * <p>
+   * If true, the icon may be flipped to prevent it from being rendered upside-down.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -465,6 +589,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconKeepUpright property
+   * <p>
+   * If true, the icon may be flipped to prevent it from being rendered upside-down.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -476,6 +603,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconPitchAlignment property
+   * <p>
+   * Orientation of icon when map is pitched.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -485,6 +615,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconPitchAlignment property
+   * <p>
+   * Orientation of icon when map is pitched.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -496,6 +629,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextPitchAlignment property
+   * <p>
+   * Orientation of text when map is pitched.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -505,6 +641,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextPitchAlignment property
+   * <p>
+   * Orientation of text when map is pitched.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -516,6 +655,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextRotationAlignment property
+   * <p>
+   * In combination with {@link Property.SYMBOL_PLACEMENT}, determines the rotation behavior of the individual glyphs forming the text.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -525,6 +667,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextRotationAlignment property
+   * <p>
+   * In combination with {@link Property.SYMBOL_PLACEMENT}, determines the rotation behavior of the individual glyphs forming the text.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -536,6 +681,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextLineHeight property
+   * <p>
+   * Text leading value for multi-line text.
+   * </p>
    *
    * @return property wrapper value around Float
    */
@@ -545,6 +693,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextLineHeight property
+   * <p>
+   * Text leading value for multi-line text.
+   * </p>
    *
    * @param value property wrapper value around Float
    */
@@ -556,6 +707,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextMaxAngle property
+   * <p>
+   * Maximum angle change between adjacent characters.
+   * </p>
    *
    * @return property wrapper value around Float
    */
@@ -565,6 +719,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextMaxAngle property
+   * <p>
+   * Maximum angle change between adjacent characters.
+   * </p>
    *
    * @param value property wrapper value around Float
    */
@@ -576,6 +733,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextPadding property
+   * <p>
+   * Size of the additional area around the text bounding box used for detecting symbol collisions.
+   * </p>
    *
    * @return property wrapper value around Float
    */
@@ -585,6 +745,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextPadding property
+   * <p>
+   * Size of the additional area around the text bounding box used for detecting symbol collisions.
+   * </p>
    *
    * @param value property wrapper value around Float
    */
@@ -596,6 +759,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextKeepUpright property
+   * <p>
+   * If true, the text may be flipped vertically to prevent it from being rendered upside-down.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -605,6 +771,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextKeepUpright property
+   * <p>
+   * If true, the text may be flipped vertically to prevent it from being rendered upside-down.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -616,6 +785,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextAllowOverlap property
+   * <p>
+   * If true, the text will be visible even if it collides with other previously drawn symbols.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -625,6 +797,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextAllowOverlap property
+   * <p>
+   * If true, the text will be visible even if it collides with other previously drawn symbols.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -636,6 +811,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextIgnorePlacement property
+   * <p>
+   * If true, other symbols can be visible even if they collide with the text.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -645,6 +823,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextIgnorePlacement property
+   * <p>
+   * If true, other symbols can be visible even if they collide with the text.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -656,6 +837,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextOptional property
+   * <p>
+   * If true, icons will display without their corresponding text when the text collides with other symbols and the icon does not.
+   * </p>
    *
    * @return property wrapper value around Boolean
    */
@@ -665,6 +849,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextOptional property
+   * <p>
+   * If true, icons will display without their corresponding text when the text collides with other symbols and the icon does not.
+   * </p>
    *
    * @param value property wrapper value around Boolean
    */
@@ -676,6 +863,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconTranslate property
+   * <p>
+   * Distance that the icon's anchor is moved from its original placement. Positive values indicate right and down, while negative values indicate left and up.
+   * </p>
    *
    * @return property wrapper value around Float[]
    */
@@ -685,6 +875,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconTranslate property
+   * <p>
+   * Distance that the icon's anchor is moved from its original placement. Positive values indicate right and down, while negative values indicate left and up.
+   * </p>
    *
    * @param value property wrapper value around Float[]
    */
@@ -696,6 +889,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the IconTranslateAnchor property
+   * <p>
+   * Controls the frame of reference for {@link PropertyFactory#iconTranslate}.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -705,6 +901,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the IconTranslateAnchor property
+   * <p>
+   * Controls the frame of reference for {@link PropertyFactory#iconTranslate}.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -716,6 +915,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextTranslate property
+   * <p>
+   * Distance that the text's anchor is moved from its original placement. Positive values indicate right and down, while negative values indicate left and up.
+   * </p>
    *
    * @return property wrapper value around Float[]
    */
@@ -725,6 +927,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextTranslate property
+   * <p>
+   * Distance that the text's anchor is moved from its original placement. Positive values indicate right and down, while negative values indicate left and up.
+   * </p>
    *
    * @param value property wrapper value around Float[]
    */
@@ -736,6 +941,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Get the TextTranslateAnchor property
+   * <p>
+   * Controls the frame of reference for {@link PropertyFactory#textTranslate}.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -745,6 +953,9 @@ public class SymbolManager extends AnnotationManager<SymbolLayer, Symbol, Symbol
 
   /**
    * Set the TextTranslateAnchor property
+   * <p>
+   * Controls the frame of reference for {@link PropertyFactory#textTranslate}.
+   * </p>
    *
    * @param value property wrapper value around String
    */

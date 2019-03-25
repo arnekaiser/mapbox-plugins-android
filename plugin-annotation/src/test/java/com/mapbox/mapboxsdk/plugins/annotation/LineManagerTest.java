@@ -389,7 +389,7 @@ public class LineManagerTest {
   }
 
   @Test
-  public void testClickListener(){
+  public void testClickListener() {
     OnLineClickListener listener = mock(OnLineClickListener.class);
     lineManager = new  LineManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(lineManager.getClickListeners().isEmpty());
@@ -400,7 +400,7 @@ public class LineManagerTest {
   }
 
   @Test
-  public void testLongClickListener(){
+  public void testLongClickListener() {
     OnLineLongClickListener listener = mock(OnLineLongClickListener.class);
     lineManager = new LineManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(lineManager.getLongClickListeners().isEmpty());
@@ -411,7 +411,7 @@ public class LineManagerTest {
   }
 
   @Test
-  public void testDragListener(){
+  public void testDragListener() {
     OnLineDragListener listener = mock(OnLineDragListener.class);
     lineManager = new LineManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(lineManager.getDragListeners().isEmpty());
@@ -432,6 +432,24 @@ public class LineManagerTest {
     assertEquals(1, lineManager.getAnnotations().size());
     lineManager.deleteAll();
     assertEquals(0, lineManager.getAnnotations().size());
+  }
+
+  @Test
+  public void testIgnoreClearedAnnotations() {
+    lineManager = new LineManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
+    List<LatLng>latLngs = new ArrayList<>();
+    latLngs.add(new LatLng());
+    latLngs.add(new LatLng(1,1));
+    LineOptions options = new LineOptions().withLatLngs(latLngs);
+     Line  line = lineManager.create(options);
+    assertEquals(1, lineManager.annotations.size());
+
+    lineManager.getAnnotations().clear();
+    lineManager.updateSource();
+    assertTrue(lineManager.getAnnotations().isEmpty());
+
+    lineManager.update(line);
+    assertTrue(lineManager.getAnnotations().isEmpty());
   }
 
 }

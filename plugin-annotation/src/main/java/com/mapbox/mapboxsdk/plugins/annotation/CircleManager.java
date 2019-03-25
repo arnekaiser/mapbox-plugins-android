@@ -15,6 +15,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.layers.Property;
 
@@ -122,7 +123,18 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
    * <p>
    * Circles are going to be created only for features with a matching geometry.
    * <p>
-   * You can inspect a full list of supported feature properties in {@link CircleOptions#fromFeature(Feature)}.
+   * All supported properties are:<br>
+   * "circle-radius" - Float<br>
+   * "circle-color" - String<br>
+   * "circle-blur" - Float<br>
+   * "circle-opacity" - Float<br>
+   * "circle-stroke-width" - Float<br>
+   * "circle-stroke-color" - String<br>
+   * "circle-stroke-opacity" - Float<br>
+   * Learn more about above properties in the <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/">Style specification</a>.
+   * <p>
+   * Out of spec properties:<br>
+   * "is-draggable" - Boolean, true if the circle should be draggable, false otherwise
    *
    * @param json the GeoJSON defining the list of circles to build
    * @return the list of built circles
@@ -137,7 +149,18 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
    * <p>
    * Circles are going to be created only for features with a matching geometry.
    * <p>
-   * You can inspect a full list of supported feature properties in {@link CircleOptions#fromFeature(Feature)}.
+   * All supported properties are:<br>
+   * "circle-radius" - Float<br>
+   * "circle-color" - String<br>
+   * "circle-blur" - Float<br>
+   * "circle-opacity" - Float<br>
+   * "circle-stroke-width" - Float<br>
+   * "circle-stroke-color" - String<br>
+   * "circle-stroke-opacity" - Float<br>
+   * Learn more about above properties in the <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/">Style specification</a>.
+   * <p>
+   * Out of spec properties:<br>
+   * "is-draggable" - Boolean, true if the circle should be draggable, false otherwise
    *
    * @param featureCollection the featureCollection defining the list of circles to build
    * @return the list of built circles
@@ -180,6 +203,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
   // Property accessors
   /**
    * Get the CircleTranslate property
+   * <p>
+   * The geometry's offset. Values are [x, y] where negatives indicate left and up, respectively.
+   * </p>
    *
    * @return property wrapper value around Float[]
    */
@@ -189,6 +215,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Set the CircleTranslate property
+   * <p>
+   * The geometry's offset. Values are [x, y] where negatives indicate left and up, respectively.
+   * </p>
    *
    * @param value property wrapper value around Float[]
    */
@@ -200,6 +229,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Get the CircleTranslateAnchor property
+   * <p>
+   * Controls the frame of reference for {@link PropertyFactory#circleTranslate}.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -209,6 +241,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Set the CircleTranslateAnchor property
+   * <p>
+   * Controls the frame of reference for {@link PropertyFactory#circleTranslate}.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -220,6 +255,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Get the CirclePitchScale property
+   * <p>
+   * Controls the scaling behavior of the circle when the map is pitched.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -229,6 +267,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Set the CirclePitchScale property
+   * <p>
+   * Controls the scaling behavior of the circle when the map is pitched.
+   * </p>
    *
    * @param value property wrapper value around String
    */
@@ -240,6 +281,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Get the CirclePitchAlignment property
+   * <p>
+   * Orientation of circle when map is pitched.
+   * </p>
    *
    * @return property wrapper value around String
    */
@@ -249,6 +293,9 @@ public class CircleManager extends AnnotationManager<CircleLayer, Circle, Circle
 
   /**
    * Set the CirclePitchAlignment property
+   * <p>
+   * Orientation of circle when map is pitched.
+   * </p>
    *
    * @param value property wrapper value around String
    */

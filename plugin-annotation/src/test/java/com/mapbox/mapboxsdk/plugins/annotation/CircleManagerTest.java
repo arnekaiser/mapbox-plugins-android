@@ -323,7 +323,7 @@ public class CircleManagerTest {
   }
 
   @Test
-  public void testClickListener(){
+  public void testClickListener() {
     OnCircleClickListener listener = mock(OnCircleClickListener.class);
     circleManager = new  CircleManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(circleManager.getClickListeners().isEmpty());
@@ -334,7 +334,7 @@ public class CircleManagerTest {
   }
 
   @Test
-  public void testLongClickListener(){
+  public void testLongClickListener() {
     OnCircleLongClickListener listener = mock(OnCircleLongClickListener.class);
     circleManager = new CircleManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(circleManager.getLongClickListeners().isEmpty());
@@ -345,7 +345,7 @@ public class CircleManagerTest {
   }
 
   @Test
-  public void testDragListener(){
+  public void testDragListener() {
     OnCircleDragListener listener = mock(OnCircleDragListener.class);
     circleManager = new CircleManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(circleManager.getDragListeners().isEmpty());
@@ -363,6 +363,21 @@ public class CircleManagerTest {
     assertEquals(1, circleManager.getAnnotations().size());
     circleManager.deleteAll();
     assertEquals(0, circleManager.getAnnotations().size());
+  }
+
+  @Test
+  public void testIgnoreClearedAnnotations() {
+    circleManager = new CircleManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
+    CircleOptions options = new CircleOptions().withLatLng(new LatLng());
+     Circle  circle = circleManager.create(options);
+    assertEquals(1, circleManager.annotations.size());
+
+    circleManager.getAnnotations().clear();
+    circleManager.updateSource();
+    assertTrue(circleManager.getAnnotations().isEmpty());
+
+    circleManager.update(circle);
+    assertTrue(circleManager.getAnnotations().isEmpty());
   }
 
 }

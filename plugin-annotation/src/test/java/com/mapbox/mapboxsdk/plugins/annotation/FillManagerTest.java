@@ -367,7 +367,7 @@ public class FillManagerTest {
   }
 
   @Test
-  public void testClickListener(){
+  public void testClickListener() {
     OnFillClickListener listener = mock(OnFillClickListener.class);
     fillManager = new  FillManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(fillManager.getClickListeners().isEmpty());
@@ -378,7 +378,7 @@ public class FillManagerTest {
   }
 
   @Test
-  public void testLongClickListener(){
+  public void testLongClickListener() {
     OnFillLongClickListener listener = mock(OnFillLongClickListener.class);
     fillManager = new FillManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(fillManager.getLongClickListeners().isEmpty());
@@ -389,7 +389,7 @@ public class FillManagerTest {
   }
 
   @Test
-  public void testDragListener(){
+  public void testDragListener() {
     OnFillDragListener listener = mock(OnFillDragListener.class);
     fillManager = new FillManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
     assertTrue(fillManager.getDragListeners().isEmpty());
@@ -413,6 +413,27 @@ public class FillManagerTest {
     assertEquals(1, fillManager.getAnnotations().size());
     fillManager.deleteAll();
     assertEquals(0, fillManager.getAnnotations().size());
+  }
+
+  @Test
+  public void testIgnoreClearedAnnotations() {
+    fillManager = new FillManager(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController);
+    List<LatLng>innerLatLngs = new ArrayList<>();
+    innerLatLngs.add(new LatLng());
+    innerLatLngs.add(new LatLng(1,1));
+    innerLatLngs.add(new LatLng(-1,-1));
+    List<List<LatLng>>latLngs = new ArrayList<>();
+    latLngs.add(innerLatLngs);
+    FillOptions options = new FillOptions().withLatLngs(latLngs);
+     Fill  fill = fillManager.create(options);
+    assertEquals(1, fillManager.annotations.size());
+
+    fillManager.getAnnotations().clear();
+    fillManager.updateSource();
+    assertTrue(fillManager.getAnnotations().isEmpty());
+
+    fillManager.update(fill);
+    assertTrue(fillManager.getAnnotations().isEmpty());
   }
 
 }
