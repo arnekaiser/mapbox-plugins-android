@@ -8,17 +8,30 @@
 
 To use the annotation plugin you include it in your `build.gradle` file.
 
-```
-// In the root build.gradle file
+In the root `build.gradle` file:
+
+```groovy
 repositories {
     mavenCentral()
 }
 
-...
+```
 
-// In the app build.gradle file
+In the app-level `build.gradle` file:
+
+```groovy
+android {
+
+	// The Annotation Plugin requires Java 8 usage
+	compileOptions {
+	    sourceCompatibility JavaVersion.VERSION_1_8
+	    targetCompatibility JavaVersion.VERSION_1_8
+	}
+
+}
+
 dependencies {
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v7:0.5.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v7:0.6.0'
 }
 ```
 
@@ -35,7 +48,7 @@ repositories {
 
 // In the app build.gradle file
 dependencies {
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v7:0.6.0-SNAPSHOT'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v7:0.7.0-SNAPSHOT'
 }
 ```
 

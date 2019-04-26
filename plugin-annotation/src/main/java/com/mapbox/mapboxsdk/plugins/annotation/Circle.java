@@ -43,26 +43,26 @@ public class Circle extends Annotation<Point> {
 
   @Override
   void setUsedDataDrivenProperties() {
-    if (!(jsonObject.get("circle-radius") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-radius");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleRadius) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleRadius);
     }
-    if (!(jsonObject.get("circle-color") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-color");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleColor) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleColor);
     }
-    if (!(jsonObject.get("circle-blur") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-blur");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleBlur) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleBlur);
     }
-    if (!(jsonObject.get("circle-opacity") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-opacity");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleOpacity) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleOpacity);
     }
-    if (!(jsonObject.get("circle-stroke-width") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-stroke-width");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleStrokeWidth) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleStrokeWidth);
     }
-    if (!(jsonObject.get("circle-stroke-color") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-stroke-color");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleStrokeColor) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleStrokeColor);
     }
-    if (!(jsonObject.get("circle-stroke-opacity") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("circle-stroke-opacity");
+    if (!(jsonObject.get(CircleOptions.PROPERTY_circleStrokeOpacity) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(CircleOptions.PROPERTY_circleStrokeOpacity);
     }
   }
 
@@ -99,7 +99,7 @@ public class Circle extends Annotation<Point> {
    * @return property wrapper value around Float
    */
   public Float getCircleRadius() {
-    return jsonObject.get("circle-radius").getAsFloat();
+    return jsonObject.get(CircleOptions.PROPERTY_circleRadius).getAsFloat();
   }
 
   /**
@@ -114,7 +114,7 @@ public class Circle extends Annotation<Point> {
    * @param value constant property value for Float
    */
   public void setCircleRadius(Float value) {
-    jsonObject.addProperty("circle-radius", value);
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleRadius, value);
   }
 
   /**
@@ -126,8 +126,20 @@ public class Circle extends Annotation<Point> {
    * @return color value for String
    */
   @ColorInt
-  public int getCircleColor() {
-    return ColorUtils.rgbaToColor(jsonObject.get("circle-color").getAsString());
+  public int getCircleColorAsInt() {
+    return ColorUtils.rgbaToColor(jsonObject.get(CircleOptions.PROPERTY_circleColor).getAsString());
+  }
+
+  /**
+   * Get the CircleColor property
+   * <p>
+   * The fill color of the circle.
+   * </p>
+   *
+   * @return color value for String
+   */
+  public String getCircleColor() {
+    return jsonObject.get(CircleOptions.PROPERTY_circleColor).getAsString();
   }
 
   /**
@@ -142,7 +154,22 @@ public class Circle extends Annotation<Point> {
    * @param color value for String
    */
   public void setCircleColor(@ColorInt int color) {
-    jsonObject.addProperty("circle-color", ColorUtils.colorToRgbaString(color));
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleColor, ColorUtils.colorToRgbaString(color));
+  }
+
+  /**
+   * Set the CircleColor property
+   * <p>
+   * The fill color of the circle.
+   * </p>
+   * <p>
+   * To update the circle on the map use {@link CircleManager#update(Annotation)}.
+   * <p>
+   *
+   * @param color value for String
+   */
+  public void setCircleColor(@NonNull String color) {
+    jsonObject.addProperty("circle-color", color);
   }
 
   /**
@@ -154,7 +181,7 @@ public class Circle extends Annotation<Point> {
    * @return property wrapper value around Float
    */
   public Float getCircleBlur() {
-    return jsonObject.get("circle-blur").getAsFloat();
+    return jsonObject.get(CircleOptions.PROPERTY_circleBlur).getAsFloat();
   }
 
   /**
@@ -169,7 +196,7 @@ public class Circle extends Annotation<Point> {
    * @param value constant property value for Float
    */
   public void setCircleBlur(Float value) {
-    jsonObject.addProperty("circle-blur", value);
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleBlur, value);
   }
 
   /**
@@ -181,7 +208,7 @@ public class Circle extends Annotation<Point> {
    * @return property wrapper value around Float
    */
   public Float getCircleOpacity() {
-    return jsonObject.get("circle-opacity").getAsFloat();
+    return jsonObject.get(CircleOptions.PROPERTY_circleOpacity).getAsFloat();
   }
 
   /**
@@ -196,7 +223,7 @@ public class Circle extends Annotation<Point> {
    * @param value constant property value for Float
    */
   public void setCircleOpacity(Float value) {
-    jsonObject.addProperty("circle-opacity", value);
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleOpacity, value);
   }
 
   /**
@@ -208,7 +235,7 @@ public class Circle extends Annotation<Point> {
    * @return property wrapper value around Float
    */
   public Float getCircleStrokeWidth() {
-    return jsonObject.get("circle-stroke-width").getAsFloat();
+    return jsonObject.get(CircleOptions.PROPERTY_circleStrokeWidth).getAsFloat();
   }
 
   /**
@@ -223,7 +250,7 @@ public class Circle extends Annotation<Point> {
    * @param value constant property value for Float
    */
   public void setCircleStrokeWidth(Float value) {
-    jsonObject.addProperty("circle-stroke-width", value);
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleStrokeWidth, value);
   }
 
   /**
@@ -235,8 +262,20 @@ public class Circle extends Annotation<Point> {
    * @return color value for String
    */
   @ColorInt
-  public int getCircleStrokeColor() {
-    return ColorUtils.rgbaToColor(jsonObject.get("circle-stroke-color").getAsString());
+  public int getCircleStrokeColorAsInt() {
+    return ColorUtils.rgbaToColor(jsonObject.get(CircleOptions.PROPERTY_circleStrokeColor).getAsString());
+  }
+
+  /**
+   * Get the CircleStrokeColor property
+   * <p>
+   * The stroke color of the circle.
+   * </p>
+   *
+   * @return color value for String
+   */
+  public String getCircleStrokeColor() {
+    return jsonObject.get(CircleOptions.PROPERTY_circleStrokeColor).getAsString();
   }
 
   /**
@@ -251,7 +290,22 @@ public class Circle extends Annotation<Point> {
    * @param color value for String
    */
   public void setCircleStrokeColor(@ColorInt int color) {
-    jsonObject.addProperty("circle-stroke-color", ColorUtils.colorToRgbaString(color));
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleStrokeColor, ColorUtils.colorToRgbaString(color));
+  }
+
+  /**
+   * Set the CircleStrokeColor property
+   * <p>
+   * The stroke color of the circle.
+   * </p>
+   * <p>
+   * To update the circle on the map use {@link CircleManager#update(Annotation)}.
+   * <p>
+   *
+   * @param color value for String
+   */
+  public void setCircleStrokeColor(@NonNull String color) {
+    jsonObject.addProperty("circle-stroke-color", color);
   }
 
   /**
@@ -263,7 +317,7 @@ public class Circle extends Annotation<Point> {
    * @return property wrapper value around Float
    */
   public Float getCircleStrokeOpacity() {
-    return jsonObject.get("circle-stroke-opacity").getAsFloat();
+    return jsonObject.get(CircleOptions.PROPERTY_circleStrokeOpacity).getAsFloat();
   }
 
   /**
@@ -278,7 +332,7 @@ public class Circle extends Annotation<Point> {
    * @param value constant property value for Float
    */
   public void setCircleStrokeOpacity(Float value) {
-    jsonObject.addProperty("circle-stroke-opacity", value);
+    jsonObject.addProperty(CircleOptions.PROPERTY_circleStrokeOpacity, value);
   }
 
   @Override

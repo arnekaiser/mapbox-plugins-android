@@ -43,17 +43,17 @@ public class Fill extends Annotation<Polygon> {
 
   @Override
   void setUsedDataDrivenProperties() {
-    if (!(jsonObject.get("fill-opacity") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("fill-opacity");
+    if (!(jsonObject.get(FillOptions.PROPERTY_fillOpacity) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(FillOptions.PROPERTY_fillOpacity);
     }
-    if (!(jsonObject.get("fill-color") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("fill-color");
+    if (!(jsonObject.get(FillOptions.PROPERTY_fillColor) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(FillOptions.PROPERTY_fillColor);
     }
-    if (!(jsonObject.get("fill-outline-color") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("fill-outline-color");
+    if (!(jsonObject.get(FillOptions.PROPERTY_fillOutlineColor) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(FillOptions.PROPERTY_fillOutlineColor);
     }
-    if (!(jsonObject.get("fill-pattern") instanceof JsonNull)) {
-      annotationManager.enableDataDrivenProperty("fill-pattern");
+    if (!(jsonObject.get(FillOptions.PROPERTY_fillPattern) instanceof JsonNull)) {
+      annotationManager.enableDataDrivenProperty(FillOptions.PROPERTY_fillPattern);
     }
   }
 
@@ -110,7 +110,7 @@ public class Fill extends Annotation<Polygon> {
    * @return property wrapper value around Float
    */
   public Float getFillOpacity() {
-    return jsonObject.get("fill-opacity").getAsFloat();
+    return jsonObject.get(FillOptions.PROPERTY_fillOpacity).getAsFloat();
   }
 
   /**
@@ -125,7 +125,7 @@ public class Fill extends Annotation<Polygon> {
    * @param value constant property value for Float
    */
   public void setFillOpacity(Float value) {
-    jsonObject.addProperty("fill-opacity", value);
+    jsonObject.addProperty(FillOptions.PROPERTY_fillOpacity, value);
   }
 
   /**
@@ -137,8 +137,20 @@ public class Fill extends Annotation<Polygon> {
    * @return color value for String
    */
   @ColorInt
-  public int getFillColor() {
-    return ColorUtils.rgbaToColor(jsonObject.get("fill-color").getAsString());
+  public int getFillColorAsInt() {
+    return ColorUtils.rgbaToColor(jsonObject.get(FillOptions.PROPERTY_fillColor).getAsString());
+  }
+
+  /**
+   * Get the FillColor property
+   * <p>
+   * The color of the filled part of this layer. This color can be specified as `rgba` with an alpha component and the color's opacity will not affect the opacity of the 1px stroke, if it is used.
+   * </p>
+   *
+   * @return color value for String
+   */
+  public String getFillColor() {
+    return jsonObject.get(FillOptions.PROPERTY_fillColor).getAsString();
   }
 
   /**
@@ -153,7 +165,22 @@ public class Fill extends Annotation<Polygon> {
    * @param color value for String
    */
   public void setFillColor(@ColorInt int color) {
-    jsonObject.addProperty("fill-color", ColorUtils.colorToRgbaString(color));
+    jsonObject.addProperty(FillOptions.PROPERTY_fillColor, ColorUtils.colorToRgbaString(color));
+  }
+
+  /**
+   * Set the FillColor property
+   * <p>
+   * The color of the filled part of this layer. This color can be specified as `rgba` with an alpha component and the color's opacity will not affect the opacity of the 1px stroke, if it is used.
+   * </p>
+   * <p>
+   * To update the fill on the map use {@link FillManager#update(Annotation)}.
+   * <p>
+   *
+   * @param color value for String
+   */
+  public void setFillColor(@NonNull String color) {
+    jsonObject.addProperty("fill-color", color);
   }
 
   /**
@@ -165,8 +192,20 @@ public class Fill extends Annotation<Polygon> {
    * @return color value for String
    */
   @ColorInt
-  public int getFillOutlineColor() {
-    return ColorUtils.rgbaToColor(jsonObject.get("fill-outline-color").getAsString());
+  public int getFillOutlineColorAsInt() {
+    return ColorUtils.rgbaToColor(jsonObject.get(FillOptions.PROPERTY_fillOutlineColor).getAsString());
+  }
+
+  /**
+   * Get the FillOutlineColor property
+   * <p>
+   * The outline color of the fill. Matches the value of {@link PropertyFactory#fillColor} if unspecified.
+   * </p>
+   *
+   * @return color value for String
+   */
+  public String getFillOutlineColor() {
+    return jsonObject.get(FillOptions.PROPERTY_fillOutlineColor).getAsString();
   }
 
   /**
@@ -181,7 +220,22 @@ public class Fill extends Annotation<Polygon> {
    * @param color value for String
    */
   public void setFillOutlineColor(@ColorInt int color) {
-    jsonObject.addProperty("fill-outline-color", ColorUtils.colorToRgbaString(color));
+    jsonObject.addProperty(FillOptions.PROPERTY_fillOutlineColor, ColorUtils.colorToRgbaString(color));
+  }
+
+  /**
+   * Set the FillOutlineColor property
+   * <p>
+   * The outline color of the fill. Matches the value of {@link PropertyFactory#fillColor} if unspecified.
+   * </p>
+   * <p>
+   * To update the fill on the map use {@link FillManager#update(Annotation)}.
+   * <p>
+   *
+   * @param color value for String
+   */
+  public void setFillOutlineColor(@NonNull String color) {
+    jsonObject.addProperty("fill-outline-color", color);
   }
 
   /**
@@ -193,7 +247,7 @@ public class Fill extends Annotation<Polygon> {
    * @return property wrapper value around String
    */
   public String getFillPattern() {
-    return jsonObject.get("fill-pattern").getAsString();
+    return jsonObject.get(FillOptions.PROPERTY_fillPattern).getAsString();
   }
 
   /**
@@ -208,7 +262,7 @@ public class Fill extends Annotation<Polygon> {
    * @param value constant property value for String
    */
   public void setFillPattern(String value) {
-    jsonObject.addProperty("fill-pattern", value);
+    jsonObject.addProperty(FillOptions.PROPERTY_fillPattern, value);
   }
 
   @Override

@@ -16,13 +16,13 @@ import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.layers.Property;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mapbox.mapboxsdk.plugins.annotation.Symbol.Z_INDEX;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.*;
 
@@ -34,6 +34,10 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
   public static final String ID_GEOJSON_SOURCE = "mapbox-android-fill-source";
   public static final String ID_GEOJSON_LAYER = "mapbox-android-fill-layer";
 
+  private static final String PROPERTY_fillAntialias = "fill-antialias";
+  private static final String PROPERTY_fillTranslate = "fill-translate";
+  private static final String PROPERTY_fillTranslateAnchor = "fill-translate-anchor";
+
   /**
    * Create a fill manager, used to manage fills.
    *
@@ -42,7 +46,7 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    */
   @UiThread
   public FillManager(@NonNull MapView mapView, @NonNull MapboxMap mapboxMap, @NonNull Style style) {
-    this(mapView, mapboxMap, style, null);
+    this(mapView, mapboxMap, style, null, null);
   }
 
   /**
@@ -54,6 +58,19 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    */
   @UiThread
   public FillManager(@NonNull MapView mapView, @NonNull MapboxMap mapboxMap, @NonNull Style style, @Nullable String belowLayerId) {
+    this(mapView, mapboxMap, style, belowLayerId, null);
+  }
+
+  /**
+   * Create a fill manager, used to manage fills.
+   *
+   * @param mapboxMap the map object to add fills to
+   * @param style a valid a fully loaded style object
+   * @param belowLayerId the id of the layer above the circle layer
+   * @param geoJsonOptions options for the internal source
+   */
+  @UiThread
+  public FillManager(@NonNull MapView mapView, @NonNull MapboxMap mapboxMap, @NonNull Style style, @Nullable String belowLayerId, @Nullable GeoJsonOptions geoJsonOptions) {
     this(mapView, mapboxMap, style,
       new CoreElementProvider<FillLayer>() {
         @Override
@@ -62,46 +79,44 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
         }
 
         @Override
-        public GeoJsonSource getSource() {
-          return new GeoJsonSource(ID_GEOJSON_SOURCE);
+        public GeoJsonSource getSource(@Nullable GeoJsonOptions geoJsonOptions) {
+          if (geoJsonOptions != null) {
+            return new GeoJsonSource(ID_GEOJSON_SOURCE, geoJsonOptions);
+          } else {
+            return new GeoJsonSource(ID_GEOJSON_SOURCE);
+          }
         }
       },
-     belowLayerId, new DraggableAnnotationController<>(mapView, mapboxMap));
+     belowLayerId, geoJsonOptions, new DraggableAnnotationController<>(mapView, mapboxMap));
   }
 
-  /**
-   * Create a fill manager, used to manage fills.
-   *
-   * @param mapboxMap     the map object to add fills to
-   * @param style a valid a fully loaded style object
-   */
   @VisibleForTesting
-  public FillManager(@NonNull MapView mapView, @NonNull MapboxMap mapboxMap, @NonNull Style style, @NonNull CoreElementProvider<FillLayer> coreElementProvider, @Nullable String belowLayerId, DraggableAnnotationController<Fill, OnFillDragListener> draggableAnnotationController) {
-    super(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController, belowLayerId);
+  FillManager(@NonNull MapView mapView, @NonNull MapboxMap mapboxMap, @NonNull Style style, @NonNull CoreElementProvider<FillLayer> coreElementProvider, @Nullable String belowLayerId, @Nullable GeoJsonOptions geoJsonOptions, DraggableAnnotationController<Fill, OnFillDragListener> draggableAnnotationController) {
+    super(mapView, mapboxMap, style, coreElementProvider, null, draggableAnnotationController, belowLayerId, geoJsonOptions);
   }
 
   @Override
   void initializeDataDrivenPropertyMap() {
-    dataDrivenPropertyUsageMap.put("fill-opacity", false);
-    dataDrivenPropertyUsageMap.put("fill-color", false);
-    dataDrivenPropertyUsageMap.put("fill-outline-color", false);
-    dataDrivenPropertyUsageMap.put("fill-pattern", false);
+    dataDrivenPropertyUsageMap.put(FillOptions.PROPERTY_fillOpacity, false);
+    dataDrivenPropertyUsageMap.put(FillOptions.PROPERTY_fillColor, false);
+    dataDrivenPropertyUsageMap.put(FillOptions.PROPERTY_fillOutlineColor, false);
+    dataDrivenPropertyUsageMap.put(FillOptions.PROPERTY_fillPattern, false);
   }
 
   @Override
   protected void setDataDrivenPropertyIsUsed(@NonNull String property) {
     switch (property) {
-      case "fill-opacity":
-        layer.setProperties(fillOpacity(get("fill-opacity")));
+      case FillOptions.PROPERTY_fillOpacity:
+        layer.setProperties(fillOpacity(get(FillOptions.PROPERTY_fillOpacity)));
         break;
-      case "fill-color":
-        layer.setProperties(fillColor(get("fill-color")));
+      case FillOptions.PROPERTY_fillColor:
+        layer.setProperties(fillColor(get(FillOptions.PROPERTY_fillColor)));
         break;
-      case "fill-outline-color":
-        layer.setProperties(fillOutlineColor(get("fill-outline-color")));
+      case FillOptions.PROPERTY_fillOutlineColor:
+        layer.setProperties(fillOutlineColor(get(FillOptions.PROPERTY_fillOutlineColor)));
         break;
-      case "fill-pattern":
-        layer.setProperties(fillPattern(get("fill-pattern")));
+      case FillOptions.PROPERTY_fillPattern:
+        layer.setProperties(fillPattern(get(FillOptions.PROPERTY_fillPattern)));
         break;
     }
   }
@@ -112,10 +127,10 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    * Fills are going to be created only for features with a matching geometry.
    * <p>
    * All supported properties are:<br>
-   * "fill-opacity" - Float<br>
-   * "fill-color" - String<br>
-   * "fill-outline-color" - String<br>
-   * "fill-pattern" - String<br>
+   * FillOptions.PROPERTY_fillOpacity - Float<br>
+   * FillOptions.PROPERTY_fillColor - String<br>
+   * FillOptions.PROPERTY_fillOutlineColor - String<br>
+   * FillOptions.PROPERTY_fillPattern - String<br>
    * Learn more about above properties in the <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/">Style specification</a>.
    * <p>
    * Out of spec properties:<br>
@@ -135,10 +150,10 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    * Fills are going to be created only for features with a matching geometry.
    * <p>
    * All supported properties are:<br>
-   * "fill-opacity" - Float<br>
-   * "fill-color" - String<br>
-   * "fill-outline-color" - String<br>
-   * "fill-pattern" - String<br>
+   * FillOptions.PROPERTY_fillOpacity - Float<br>
+   * FillOptions.PROPERTY_fillColor - String<br>
+   * FillOptions.PROPERTY_fillOutlineColor - String<br>
+   * FillOptions.PROPERTY_fillPattern - String<br>
    * Learn more about above properties in the <a href="https://www.mapbox.com/mapbox-gl-js/style-spec/">Style specification</a>.
    * <p>
    * Out of spec properties:<br>
@@ -205,7 +220,7 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    */
   public void setFillAntialias( Boolean value) {
     PropertyValue propertyValue = fillAntialias(value);
-    constantPropertyUsageMap.put("fill-antialias", propertyValue);
+    constantPropertyUsageMap.put(PROPERTY_fillAntialias, propertyValue);
     layer.setProperties(propertyValue);
   }
 
@@ -231,7 +246,7 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    */
   public void setFillTranslate( Float[] value) {
     PropertyValue propertyValue = fillTranslate(value);
-    constantPropertyUsageMap.put("fill-translate", propertyValue);
+    constantPropertyUsageMap.put(PROPERTY_fillTranslate, propertyValue);
     layer.setProperties(propertyValue);
   }
 
@@ -257,7 +272,7 @@ public class FillManager extends AnnotationManager<FillLayer, Fill, FillOptions,
    */
   public void setFillTranslateAnchor(@Property.FILL_TRANSLATE_ANCHOR String value) {
     PropertyValue propertyValue = fillTranslateAnchor(value);
-    constantPropertyUsageMap.put("fill-translate-anchor", propertyValue);
+    constantPropertyUsageMap.put(PROPERTY_fillTranslateAnchor, propertyValue);
     layer.setProperties(propertyValue);
   }
 

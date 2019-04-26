@@ -25,6 +25,7 @@ import com.mapbox.mapboxsdk.plugins.testapp.R;
 import com.mapbox.mapboxsdk.plugins.testapp.Utils;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
 import com.mapbox.mapboxsdk.utils.ColorUtils;
 import timber.log.Timber;
@@ -76,7 +77,8 @@ public class SymbolActivity extends AppCompatActivity {
         true);
 
       // create symbol manager
-      symbolManager = new SymbolManager(mapView, mapboxMap, style);
+      GeoJsonOptions geoJsonOptions = new GeoJsonOptions().withTolerance(0.4f);
+      symbolManager = new SymbolManager(mapView, mapboxMap, style, null, geoJsonOptions);
       symbolManager.addClickListener(symbol -> Toast.makeText(SymbolActivity.this,
         String.format("Symbol clicked %s", symbol.getId()),
         Toast.LENGTH_SHORT
@@ -97,7 +99,7 @@ public class SymbolActivity extends AppCompatActivity {
         .withIconImage(ID_ICON_AIRPORT)
         .withIconSize(1.3f)
         .withZIndex(10)
-        .setDraggable(true);
+        .withDraggable(true);
       symbol = symbolManager.create(symbolOptions);
       Timber.e(symbol.toString());
 
@@ -108,14 +110,14 @@ public class SymbolActivity extends AppCompatActivity {
         .withIconColor(ColorUtils.colorToRgbaString(Color.YELLOW))
         .withIconSize(2.5f)
         .withZIndex(5)
-        .setDraggable(true);
+        .withDraggable(true);
       symbolManager.create(nearbyOptions);
 
       // random add symbols across the globe
       List<SymbolOptions> symbolOptionsList = new ArrayList<>();
       for (int i = 0; i < 20; i++) {
         symbolOptionsList.add(new SymbolOptions().withLatLng(createRandomLatLng()).withIconImage(MAKI_ICON_CAR)
-          .setDraggable(true));
+          .withDraggable(true));
       }
       symbolManager.create(symbolOptionsList);
 
