@@ -79,9 +79,20 @@ public class OfflinePlugin {
    * @since 0.1.0
    */
   public void startDownload(OfflineDownloadOptions options) {
+    ArrayList<OfflineDownloadOptions> optionsList = new ArrayList<>();
+    optionsList.add(options);
+    startGroupedDownload(optionsList);
+  }
+
+  // TODO own grouped download options?
+  public void startGroupedDownload(ArrayList<OfflineDownloadOptions> optionsList) {
     Intent intent = new Intent(context, OfflineDownloadService.class);
-    intent.setAction(OfflineConstants.ACTION_START_DOWNLOAD);
-    intent.putExtra(KEY_BUNDLE, options);
+    if (optionsList.size() == 1) {
+      intent.setAction(OfflineConstants.ACTION_START_DOWNLOAD);
+    } else {
+      intent.setAction(OfflineConstants.ACTION_START_GROUPED_DOWNLOAD);
+    }
+    intent.putParcelableArrayListExtra(KEY_BUNDLE, optionsList);
     context.startService(intent);
   }
 

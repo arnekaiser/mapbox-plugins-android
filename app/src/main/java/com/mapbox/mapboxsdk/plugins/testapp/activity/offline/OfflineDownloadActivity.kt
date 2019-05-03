@@ -143,13 +143,25 @@ class OfflineDownloadActivity : AppCompatActivity() {
                 .build()
 
         // start offline download
-        OfflinePlugin.getInstance(this).startDownload(
+        /*OfflinePlugin.getInstance(this).startDownload(
                 OfflineDownloadOptions.builder()
                         .definition(definition)
                         .metadata(OfflineUtils.convertRegionName(regionName))
                         .notificationOptions(notificationOptions)
                         .build()
-        )
+        )*/
+
+        val downloadList = ArrayList<OfflineDownloadOptions>()
+        for (i in 0..4) {
+            val name = "$i $regionName"
+            downloadList.add(OfflineDownloadOptions.builder()
+                    .definition(definition)
+                    .metadata(OfflineUtils.convertRegionName(name))
+                    .regionName(name)
+                    .notificationOptions(notificationOptions)
+                    .build())
+        }
+        OfflinePlugin.getInstance(this).startGroupedDownload(downloadList)
     }
 
     private fun validCoordinates(latitudeNorth: Double, longitudeEast: Double, latitudeSouth: Double,
