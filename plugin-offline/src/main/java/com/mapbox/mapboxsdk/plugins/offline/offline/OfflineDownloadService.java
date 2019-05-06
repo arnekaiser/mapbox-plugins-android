@@ -10,17 +10,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.util.LongSparseArray;
-
-import com.mapbox.mapboxsdk.offline.OfflineManager;
-import com.mapbox.mapboxsdk.offline.OfflineRegion;
-import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
-import com.mapbox.mapboxsdk.offline.OfflineRegionError;
-import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
+import com.mapbox.mapboxsdk.offline.*;
 import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
 import com.mapbox.mapboxsdk.plugins.offline.utils.NotificationUtils;
 import com.mapbox.mapboxsdk.snapshotter.MapSnapshot;
 import com.mapbox.mapboxsdk.snapshotter.MapSnapshotter;
-
 import timber.log.Timber;
 
 import java.util.ArrayList;
@@ -46,11 +40,16 @@ import static com.mapbox.mapboxsdk.plugins.offline.utils.NotificationUtils.setup
  */
 public class OfflineDownloadService extends Service {
 
+  private static final int GROUPED_DOWNLOAD_ID = -1;
+
   private MapSnapshotter mapSnapshotter;
-  private boolean isGroupedDownloadActive = false;
   NotificationManagerCompat notificationManager;
   NotificationCompat.Builder notificationBuilder;
   OfflineDownloadStateReceiver broadcastReceiver;
+
+  private boolean isGroupedDownloadActive = false;
+  private NotificationCompat.Builder groupedNotificationBuilder;
+  private int groupedDownloadCount = 0;
 
   // map offline regions to requests, ids are received with onStartCommand, these match serviceId
   // in OfflineDownloadOptions
@@ -157,7 +156,9 @@ public class OfflineDownloadService extends Service {
     }
 
     if (groupedDownloadOptionsList.isEmpty() && !isGroupedDownloadActive) {
+      groupedDownloadCount = offlineDownloadOptionsList.size();
       groupedDownloadOptionsList.addAll(offlineDownloadOptionsList);
+      showGroupedNotification(groupedDownloadOptionsList.get(0));
       launchGroupedDownload(groupedDownloadOptionsList.get(0));
     } else {
       // TODO error
@@ -185,6 +186,16 @@ public class OfflineDownloadService extends Service {
         }
       });
     }
+  }
+
+  // TODO options
+  private void showGroupedNotification(final OfflineDownloadOptions offlineDownload) {
+    groupedNotificationBuilder = NotificationUtils.toNotificationBuilder(this,
+      offlineDownload, OfflineDownloadStateReceiver.createNotificationIntent(
+        getApplicationContext(), offlineDownload), offlineDownload.notificationOptions(),
+      OfflineDownloadStateReceiver.createCancelIntent(getApplicationContext(), offlineDownload)
+    );
+    startForeground(GROUPED_DOWNLOAD_ID, groupedNotificationBuilder.build());
   }
 
   private void createMapSnapshot(OfflineRegionDefinition definition,
@@ -277,9 +288,10 @@ public class OfflineDownloadService extends Service {
             offlineRegion.setObserver(new OfflineRegion.OfflineRegionObserver() {
               @Override
               public void onStatusChanged(OfflineRegionStatus status) {
-                Timber.d("Progress %f", ((double) status.getCompletedResourceCount() / status.getRequiredResourceCount()));
                 if (status.isComplete()) {
                   downloadNext();
+                } else {
+                  progressGroupedDownload(offlineDownload, status);
                 }
               }
 
@@ -331,6 +343,9 @@ public class OfflineDownloadService extends Service {
         Timber.d("Download finished");
         isGroupedDownloadActive = false;
         stopForeground(true);
+        if (groupedNotificationBuilder != null) {
+          notificationManager.cancel(GROUPED_DOWNLOAD_ID);
+        }
       } else {
         final OfflineDownloadOptions nextDownload = groupedDownloadOptionsList.get(0);
         Timber.d("Launching next download: %s", nextDownload.regionName());
@@ -340,9 +355,7 @@ public class OfflineDownloadService extends Service {
   }
 
   void progressDownload(OfflineDownloadOptions offlineDownload, OfflineRegionStatus status) {
-    int percentage = (int) (status.getRequiredResourceCount() >= 0
-      ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) :
-      0.0);
+    final int percentage = (int) getProgress(status);
 
     offlineDownload = offlineDownload.toBuilder().progress(percentage).build();
 
@@ -353,6 +366,28 @@ public class OfflineDownloadService extends Service {
         notificationManager.notify(offlineDownload.uuid().intValue(), notificationBuilder.build());
       }
     }
+  }
+
+  private void progressGroupedDownload(OfflineDownloadOptions offlineDownload, OfflineRegionStatus status) {
+    final int finishedDownloads = groupedDownloadCount - groupedDownloadOptionsList.size();
+    final int percentage = (int) getProgress(status) + finishedDownloads * 100;
+    Timber.d("Count %d - Finished %d - Progress %d", groupedDownloadCount, finishedDownloads, percentage);
+
+    offlineDownload = offlineDownload.toBuilder().progress(percentage).build();
+
+    if (percentage % 2 == 0) {
+      // TODO
+      //OfflineDownloadStateReceiver.dispatchProgressChanged(this, offlineDownload, percentage);
+      if (groupedNotificationBuilder != null && isGroupedDownloadActive) {
+        groupedNotificationBuilder.setProgress(groupedDownloadCount * 100, percentage, false);
+        groupedNotificationBuilder.setContentTitle(offlineDownload.regionName());
+        notificationManager.notify(GROUPED_DOWNLOAD_ID, groupedNotificationBuilder.build());
+      }
+    }
+  }
+
+  private double getProgress(OfflineRegionStatus status) {
+    return status.getRequiredResourceCount() >= 0 ? (100.0 * status.getCompletedResourceCount() / status.getRequiredResourceCount()) : 0.0;
   }
 
   @Override
