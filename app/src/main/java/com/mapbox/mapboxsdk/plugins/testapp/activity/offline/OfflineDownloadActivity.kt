@@ -11,6 +11,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition
+import com.mapbox.mapboxsdk.plugins.offline.model.GroupedOfflineDownloadOptions
 import com.mapbox.mapboxsdk.plugins.offline.offline.OfflinePlugin
 import com.mapbox.mapboxsdk.plugins.offline.model.NotificationOptions
 import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions
@@ -161,7 +162,11 @@ class OfflineDownloadActivity : AppCompatActivity() {
                     .notificationOptions(notificationOptions)
                     .build())
         }
-        OfflinePlugin.getInstance(this).startGroupedDownload(downloadList)
+        val downloadOptions = GroupedOfflineDownloadOptions.builder()
+                .offlineDownloadOptionsList(downloadList)
+                .notificationOptions(notificationOptions)
+                .build()
+        OfflinePlugin.getInstance(this).startGroupedDownload(downloadOptions)
     }
 
     private fun validCoordinates(latitudeNorth: Double, longitudeEast: Double, latitudeSouth: Double,

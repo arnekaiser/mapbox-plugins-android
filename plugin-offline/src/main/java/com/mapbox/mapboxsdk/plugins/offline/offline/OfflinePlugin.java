@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.plugins.offline.model.GroupedOfflineDownloadOptions;
 import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class OfflinePlugin {
   private static OfflinePlugin instance;
 
   private final OfflineDownloadChangeDispatcher stateChangeDispatcher = new OfflineDownloadChangeDispatcher();
+  private final GroupedOfflineDownloadChangeDispatcher groupedChangeDispatcher = new GroupedOfflineDownloadChangeDispatcher();
   private final List<OfflineDownloadOptions> offlineDownloads = new ArrayList<>();
   private final Context context;
 
@@ -79,20 +81,16 @@ public class OfflinePlugin {
    * @since 0.1.0
    */
   public void startDownload(OfflineDownloadOptions options) {
-    ArrayList<OfflineDownloadOptions> optionsList = new ArrayList<>();
-    optionsList.add(options);
-    startGroupedDownload(optionsList);
+    Intent intent = new Intent(context, OfflineDownloadService.class);
+    intent.setAction(OfflineConstants.ACTION_START_DOWNLOAD);
+    intent.putExtra(KEY_BUNDLE, options);
+    context.startService(intent);
   }
 
-  // TODO own grouped download options?
-  public void startGroupedDownload(ArrayList<OfflineDownloadOptions> optionsList) {
+  public void startGroupedDownload(GroupedOfflineDownloadOptions groupedOptions) {
     Intent intent = new Intent(context, OfflineDownloadService.class);
-    if (optionsList.size() == 1) {
-      intent.setAction(OfflineConstants.ACTION_START_DOWNLOAD);
-    } else {
-      intent.setAction(OfflineConstants.ACTION_START_GROUPED_DOWNLOAD);
-    }
-    intent.putParcelableArrayListExtra(KEY_BUNDLE, optionsList);
+    intent.setAction(OfflineConstants.ACTION_START_DOWNLOAD);
+    intent.putExtra(KEY_BUNDLE, groupedOptions);
     context.startService(intent);
   }
 
@@ -106,6 +104,13 @@ public class OfflinePlugin {
     Intent intent = new Intent(context, OfflineDownloadService.class);
     intent.setAction(OfflineConstants.ACTION_CANCEL_DOWNLOAD);
     intent.putExtra(KEY_BUNDLE, offlineDownload);
+    context.startService(intent);
+  }
+
+  public void cancelGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownload) {
+    Intent intent = new Intent(context, OfflineDownloadService.class);
+    intent.setAction(OfflineConstants.ACTION_CANCEL_DOWNLOAD);
+    intent.putExtra(KEY_BUNDLE, groupedOfflineDownload);
     context.startService(intent);
   }
 
@@ -153,6 +158,14 @@ public class OfflinePlugin {
    */
   public void removeOfflineDownloadStateChangeListener(OfflineDownloadChangeListener listener) {
     stateChangeDispatcher.removeListener(listener);
+  }
+
+  public void addGroupedOfflineDownloadStateChangeListener(GroupedOfflineDownloadChangeListener listener) {
+    groupedChangeDispatcher.addListener(listener);
+  }
+
+  public void removeGroupedOfflineDownloadStateChangeListener(GroupedOfflineDownloadChangeListener listener) {
+    groupedChangeDispatcher.removeListener(listener);
   }
 
   //
@@ -208,5 +221,21 @@ public class OfflinePlugin {
    */
   void onProgressChanged(OfflineDownloadOptions offlineDownload, int progress) {
     stateChangeDispatcher.onProgress(offlineDownload, progress);
+  }
+
+  void onSuccessGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
+    groupedChangeDispatcher.onSuccess(groupedOfflineDownloadOptions);
+  }
+
+  void onCancelGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
+    groupedChangeDispatcher.onCancel(groupedOfflineDownloadOptions);
+  }
+
+  void onErrorGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions, String error, String message) {
+    groupedChangeDispatcher.onError(groupedOfflineDownloadOptions, error, message);
+  }
+
+  void onProgressGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
+    groupedChangeDispatcher.onProgress(groupedOfflineDownloadOptions);
   }
 }

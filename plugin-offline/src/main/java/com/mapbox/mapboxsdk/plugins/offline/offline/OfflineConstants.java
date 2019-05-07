@@ -7,7 +7,6 @@ public class OfflineConstants {
   }
 
   static final String ACTION_START_DOWNLOAD = "com.mapbox.mapboxsdk.plugins.offline.download.start";
-  static final String ACTION_START_GROUPED_DOWNLOAD = "com.mapbox.mapboxsdk.plugins.offline.download.grouped.start";
   static final String ACTION_CANCEL_DOWNLOAD = "com.mapbox.mapboxsdk.plugins.offline.download.cancel";
   static final String ACTION_OFFLINE = "com.mapbox.mapboxsdk.plugins.offline";
   static final String KEY_STATE = "com.mapbox.mapboxsdk.plugins.offline.state";

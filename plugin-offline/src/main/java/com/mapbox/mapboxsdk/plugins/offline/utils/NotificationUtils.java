@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
-
 import com.mapbox.mapboxsdk.plugins.offline.R;
 import com.mapbox.mapboxsdk.plugins.offline.model.NotificationOptions;
 import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
@@ -52,5 +51,19 @@ public class NotificationUtils {
         options.cancelText(),
         PendingIntent.getService(context, offlineDownload.uuid().intValue(), cancelIntent,
           PendingIntent.FLAG_CANCEL_CURRENT));
+  }
+
+  public static NotificationCompat.Builder toNotificationBuilder(Context context,
+                                                                 PendingIntent contentIntent,
+                                                                 NotificationOptions options,
+                                                                 NotificationCompat.Action cancelAction) {
+    return new NotificationCompat.Builder(context, OfflineConstants.NOTIFICATION_CHANNEL)
+      .setContentTitle(options.contentTitle())
+      .setContentText(options.contentText())
+      .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+      .setSmallIcon(options.smallIconRes())
+      .setOnlyAlertOnce(true)
+      .setContentIntent(contentIntent)
+      .addAction(cancelAction);
   }
 }
