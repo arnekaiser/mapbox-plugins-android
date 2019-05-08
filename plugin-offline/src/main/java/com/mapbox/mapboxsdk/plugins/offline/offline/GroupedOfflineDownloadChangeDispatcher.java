@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.plugins.offline.offline;
 
 import android.support.annotation.NonNull;
 import com.mapbox.mapboxsdk.plugins.offline.model.GroupedOfflineDownloadOptions;
+import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,20 @@ public class GroupedOfflineDownloadChangeDispatcher implements GroupedOfflineDow
 
   void removeListener(GroupedOfflineDownloadChangeListener groupedOfflineDownloadChangeListener) {
     changeListeners.remove(groupedOfflineDownloadChangeListener);
+  }
+
+  @Override
+  public void onProgress(GroupedOfflineDownloadOptions groupedOfflineDownload) {
+    for (GroupedOfflineDownloadChangeListener listener : changeListeners) {
+      listener.onProgress(groupedOfflineDownload);
+    }
+  }
+
+  @Override
+  public void onPartialSuccess(GroupedOfflineDownloadOptions groupedOfflineDownload, OfflineDownloadOptions offlineDownload) {
+    for (GroupedOfflineDownloadChangeListener listener : changeListeners) {
+      listener.onPartialSuccess(groupedOfflineDownload, offlineDownload);
+    }
   }
 
   @Override
@@ -37,13 +52,6 @@ public class GroupedOfflineDownloadChangeDispatcher implements GroupedOfflineDow
   public void onError(GroupedOfflineDownloadOptions groupedOfflineDownload, String error, String message) {
     for (GroupedOfflineDownloadChangeListener listener : changeListeners) {
       listener.onError(groupedOfflineDownload, error, message);
-    }
-  }
-
-  @Override
-  public void onProgress(GroupedOfflineDownloadOptions groupedOfflineDownload) {
-    for (GroupedOfflineDownloadChangeListener listener : changeListeners) {
-      listener.onProgress(groupedOfflineDownload);
     }
   }
 }

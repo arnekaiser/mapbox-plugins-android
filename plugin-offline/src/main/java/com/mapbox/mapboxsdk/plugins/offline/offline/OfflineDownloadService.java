@@ -54,16 +54,17 @@ public class OfflineDownloadService extends Service {
   NotificationCompat.Builder notificationBuilder;
   OfflineDownloadStateReceiver broadcastReceiver;
 
-  private boolean isGroupedDownloadActive = false;
-  private NotificationCompat.Builder groupedNotificationBuilder;
-  private int groupedDownloadCount = 0;
-  private OfflineRegion currentGroupedDownloadOfflineRegion = null;
-
   // map offline regions to requests, ids are received with onStartCommand, these match serviceId
   // in OfflineDownloadOptions
   final LongSparseArray<OfflineRegion> regionLongSparseArray = new LongSparseArray<>();
 
-  final List<OfflineDownloadOptions> groupedDownloadOptionsList = new ArrayList<>();
+  //private boolean isGroupedDownloadActive = false;
+  private NotificationCompat.Builder groupedNotificationBuilder;
+  //private int groupedDownloadCount = 0;
+  private GroupedOfflineDownloadOptions currentGroupedDownloadOptions = null;
+  private OfflineRegion currentGroupedDownloadOfflineRegion = null;
+
+  final List<OfflineDownloadOptions> remainingGroupedDownloadList = new ArrayList<>();
 
   @Override
   public void onCreate() {
@@ -114,11 +115,11 @@ public class OfflineDownloadService extends Service {
    * region download. First, it is determined what action to take by using the {@code intentAction}
    * parameter. This action is finally passed in to the correct map offline methods.
    *
-   * @param intentAction    string holding the task that should be performed on the specific
-   *                        download.
-   * @param options         the download model {@link OfflineDownloadOptions} which defines the
-   *                        region and other metadata needed to download the correct region.
-   *                        This can also be a grouped download {@link GroupedOfflineDownloadOptions}.
+   * @param intentAction string holding the task that should be performed on the specific
+   *                     download.
+   * @param options      the download model {@link OfflineDownloadOptions} which defines the
+   *                     region and other metadata needed to download the correct region.
+   *                     This can also be a grouped download {@link GroupedOfflineDownloadOptions}.
    * @since 0.1.0
    */
   private void onResolveCommand(String intentAction, Parcelable options) {
@@ -170,11 +171,11 @@ public class OfflineDownloadService extends Service {
       return;
     }
 
-    if (groupedDownloadOptionsList.isEmpty() && !isGroupedDownloadActive) {
-      groupedDownloadCount = groupedOfflineDownloadOptions.offlineDownloadOptionsList().size();
-      groupedDownloadOptionsList.addAll(groupedOfflineDownloadOptions.offlineDownloadOptionsList());
+    if (remainingGroupedDownloadList.isEmpty() && currentGroupedDownloadOptions == null) {
+      currentGroupedDownloadOptions = groupedOfflineDownloadOptions;
+      remainingGroupedDownloadList.addAll(groupedOfflineDownloadOptions.offlineDownloadOptionsList());
       showGroupedNotification(groupedOfflineDownloadOptions);
-      launchGroupedDownload(groupedDownloadOptionsList.get(0));
+      launchGroupedDownload(remainingGroupedDownloadList.get(0));
     } else {
       final String error = "A grouped download is already active.";
       OfflineDownloadStateReceiver.dispatchErrorBroadcast(getApplicationContext(), groupedOfflineDownloadOptions, error);
@@ -253,30 +254,34 @@ public class OfflineDownloadService extends Service {
     removeOfflineRegion(serviceId);
   }
 
-  private void cancelGroupedDownload(final GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
-    currentGroupedDownloadOfflineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
-      @Override
-      public void onDelete() {
-        // no-op
-      }
+  private void cancelGroupedDownload(@NonNull GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
+    // TODO find a better way to cancel the current download, parameter is unused and not really required.
+    if (currentGroupedDownloadOptions != null) {
+      final GroupedOfflineDownloadOptions cancelledGroupedDownload = currentGroupedDownloadOptions;
+      currentGroupedDownloadOfflineRegion.delete(new OfflineRegion.OfflineRegionDeleteCallback() {
+        @Override
+        public void onDelete() {
+          // no-op
+        }
 
-      @Override
-      public void onError(String error) {
-        final String message = "Cannot delete region.";
-        OfflineDownloadStateReceiver.dispatchErrorBroadcast(getApplicationContext(),
-          groupedOfflineDownloadOptions, error, message);
+        @Override
+        public void onError(String error) {
+          final String message = "Cannot delete region.";
+          OfflineDownloadStateReceiver.dispatchErrorBroadcast(getApplicationContext(),
+            cancelledGroupedDownload, error, message);
+        }
+      });
+      OfflineDownloadStateReceiver.dispatchCancelBroadcast(getApplicationContext(), cancelledGroupedDownload);
+      if (groupedNotificationBuilder != null) {
+        notificationManager.cancel(GROUPED_DOWNLOAD_ID);
       }
-    });
-    OfflineDownloadStateReceiver.dispatchCancelBroadcast(getApplicationContext(), groupedOfflineDownloadOptions);
-    if (groupedNotificationBuilder != null) {
-      notificationManager.cancel(GROUPED_DOWNLOAD_ID);
+      remainingGroupedDownloadList.clear();
+      currentGroupedDownloadOptions = null;
+      if (regionLongSparseArray.isEmpty()) {
+        stopForeground(true);
+      }
+      stopSelf(GROUPED_DOWNLOAD_ID);
     }
-    groupedDownloadOptionsList.clear();
-    isGroupedDownloadActive = false;
-    if (regionLongSparseArray.isEmpty()) {
-      stopForeground(true);
-    }
-    stopSelf(GROUPED_DOWNLOAD_ID);
   }
 
   private synchronized void removeOfflineRegion(int regionId) {
@@ -320,8 +325,6 @@ public class OfflineDownloadService extends Service {
   }
 
   synchronized void launchGroupedDownload(final OfflineDownloadOptions offlineDownload) {
-    isGroupedDownloadActive = true;
-
     final OfflineRegionDefinition definition = offlineDownload.definition();
     final byte[] metadata = offlineDownload.metadata();
     OfflineManager.getInstance(getApplicationContext())
@@ -336,6 +339,8 @@ public class OfflineDownloadService extends Service {
               @Override
               public void onStatusChanged(OfflineRegionStatus status) {
                 if (status.isComplete()) {
+                  OfflineDownloadStateReceiver.dispatchPartialSuccessBroadcast(getApplicationContext(),
+                    currentGroupedDownloadOptions, offlineDownload);
                   downloadNext();
                 } else {
                   progressGroupedDownload(offlineDownload, status);
@@ -344,12 +349,14 @@ public class OfflineDownloadService extends Service {
 
               @Override
               public void onError(OfflineRegionError error) {
-                // TODO
+                OfflineDownloadStateReceiver.dispatchErrorBroadcast(getApplicationContext(), currentGroupedDownloadOptions,
+                  error.getReason(), error.getMessage());
               }
 
               @Override
               public void mapboxTileCountLimitExceeded(long limit) {
-                // TODO
+                OfflineDownloadStateReceiver.dispatchErrorBroadcast(getApplicationContext(), currentGroupedDownloadOptions,
+                  "Mapbox tile count limit exceeded:" + limit);
               }
             });
 
@@ -359,9 +366,26 @@ public class OfflineDownloadService extends Service {
 
           @Override
           public void onError(String error) {
-            // TODO
+            OfflineDownloadStateReceiver.dispatchErrorBroadcast(getApplicationContext(), currentGroupedDownloadOptions,
+              error, "Cannot create offline region.");
           }
         });
+  }
+
+  private void downloadNext() {
+    synchronized (remainingGroupedDownloadList) {
+      if (remainingGroupedDownloadList.isEmpty()) {
+        finishGroupedDownload();
+        return;
+      }
+      remainingGroupedDownloadList.remove(0);
+      if (remainingGroupedDownloadList.isEmpty()) {
+        finishGroupedDownload();
+      } else {
+        final OfflineDownloadOptions nextDownload = remainingGroupedDownloadList.get(0);
+        launchGroupedDownload(nextDownload);
+      }
+    }
   }
 
   /**
@@ -379,26 +403,14 @@ public class OfflineDownloadService extends Service {
     removeOfflineRegion(offlineDownload.uuid().intValue());
   }
 
-  void downloadNext() {
-    synchronized (groupedDownloadOptionsList) {
-      if (groupedDownloadOptionsList.isEmpty()) {
-        // TODO
-        return;
-      }
-      groupedDownloadOptionsList.remove(0);
-      if (groupedDownloadOptionsList.isEmpty()) {
-        Timber.d("Download finished");
-        isGroupedDownloadActive = false;
-        stopForeground(true);
-        if (groupedNotificationBuilder != null) {
-          notificationManager.cancel(GROUPED_DOWNLOAD_ID);
-        }
-      } else {
-        final OfflineDownloadOptions nextDownload = groupedDownloadOptionsList.get(0);
-        Timber.d("Launching next download: %s", nextDownload.regionName());
-        launchGroupedDownload(nextDownload);
-      }
+  private void finishGroupedDownload() {
+    if (groupedNotificationBuilder != null) {
+      notificationManager.cancel(GROUPED_DOWNLOAD_ID);
     }
+    OfflineDownloadStateReceiver.dispatchSuccessBroadcast(getApplicationContext(), currentGroupedDownloadOptions);
+    currentGroupedDownloadOptions = null;
+    stopForeground(true);
+    stopSelf(GROUPED_DOWNLOAD_ID);
   }
 
   void progressDownload(OfflineDownloadOptions offlineDownload, OfflineRegionStatus status) {
@@ -416,19 +428,26 @@ public class OfflineDownloadService extends Service {
   }
 
   private void progressGroupedDownload(OfflineDownloadOptions offlineDownload, OfflineRegionStatus status) {
-    final int finishedDownloads = groupedDownloadCount - groupedDownloadOptionsList.size();
-    final int percentage = (int) getProgress(status) + finishedDownloads * 100;
-    Timber.d("Count %d - Finished %d - Progress %d", groupedDownloadCount, finishedDownloads, percentage);
+    if (currentGroupedDownloadOptions != null) {
+      final int downloadCount = currentGroupedDownloadOptions.offlineDownloadOptionsList().size();
+      final int finishedDownloads = downloadCount - remainingGroupedDownloadList.size();
+      final int percentageSingleDownload = (int) getProgress(status);
+      final double percentageGroupedDownload = (percentageSingleDownload + finishedDownloads * 100.0) / downloadCount;
+      final int percentageGroupedDownloadInt = (int) percentageGroupedDownload;
 
-    offlineDownload = offlineDownload.toBuilder().progress(percentage).build();
+      if (percentageGroupedDownloadInt % 2 == 0) {
+        offlineDownload = offlineDownload.toBuilder().progress(percentageSingleDownload).build();
+        currentGroupedDownloadOptions = currentGroupedDownloadOptions.toBuilder()
+          .currentOfflineDownload(offlineDownload)
+          .progress(percentageGroupedDownload)
+          .build();
+        OfflineDownloadStateReceiver.dispatchProgressChanged(getApplicationContext(), currentGroupedDownloadOptions);
 
-    if (percentage % 2 == 0) {
-      // TODO dispatch progress
-      //OfflineDownloadStateReceiver.dispatchProgressChanged(this, offlineDownload, percentage);
-      if (groupedNotificationBuilder != null && isGroupedDownloadActive) {
-        groupedNotificationBuilder.setProgress(groupedDownloadCount * 100, percentage, false);
-        groupedNotificationBuilder.setContentTitle(offlineDownload.regionName());
-        notificationManager.notify(GROUPED_DOWNLOAD_ID, groupedNotificationBuilder.build());
+        if (groupedNotificationBuilder != null) {
+          groupedNotificationBuilder.setProgress(100, percentageGroupedDownloadInt, false);
+          groupedNotificationBuilder.setContentTitle(offlineDownload.regionName());
+          notificationManager.notify(GROUPED_DOWNLOAD_ID, groupedNotificationBuilder.build());
+        }
       }
     }
   }

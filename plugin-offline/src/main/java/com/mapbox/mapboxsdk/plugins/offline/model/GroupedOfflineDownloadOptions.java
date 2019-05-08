@@ -16,7 +16,7 @@ public abstract class GroupedOfflineDownloadOptions implements Parcelable {
 
   public abstract NotificationOptions notificationOptions();
 
-  public abstract int progress();
+  public abstract double progress();
 
   @Nullable
   public abstract OfflineDownloadOptions currentOfflineDownload();
@@ -24,7 +24,7 @@ public abstract class GroupedOfflineDownloadOptions implements Parcelable {
   public static Builder builder() {
     return new AutoValue_GroupedOfflineDownloadOptions.Builder()
       .offlineDownloadOptionsList(Collections.<OfflineDownloadOptions>emptyList())
-      .progress(0)
+      .progress(0.0)
       .currentOfflineDownload(null);
   }
 
@@ -37,7 +37,7 @@ public abstract class GroupedOfflineDownloadOptions implements Parcelable {
 
     public abstract Builder notificationOptions(@NonNull NotificationOptions notificationOptions);
 
-    public abstract Builder progress(int progress);
+    public abstract Builder progress(double progress);
 
     public abstract Builder currentOfflineDownload(@Nullable OfflineDownloadOptions currentOfflineDownload);
 

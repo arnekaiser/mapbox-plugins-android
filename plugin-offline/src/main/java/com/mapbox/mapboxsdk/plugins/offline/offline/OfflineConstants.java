@@ -12,9 +12,11 @@ public class OfflineConstants {
   static final String KEY_STATE = "com.mapbox.mapboxsdk.plugins.offline.state";
   static final String STATE_STARTED = "com.mapbox.mapboxsdk.plugins.offline.state.started";
   static final String STATE_FINISHED = "com.mapbox.mapboxsdk.plugins.offline.state.complete";
+  static final String STATE_PARTIAL_FINISHED = "com.mapbox.mapboxsdk.plugins.offline.state.partial.complete";
   static final String STATE_ERROR = "com.mapbox.mapboxsdk.plugins.offline.state.error";
   static final String STATE_CANCEL = "com.mapbox.mapboxsdk.plugins.offline.state.cancel";
   static final String STATE_PROGRESS = "com.mapbox.mapboxsdk.plugins.offline.state.progress";
+  static final String KEY_BUNDLE_OFFLINE_DOWNLOAD = "com.mapbox.mapboxsdk.plugins.offline.download";
   static final String KEY_BUNDLE_OFFLINE_REGION = "com.mapbox.mapboxsdk.plugins.offline.region";
   static final String KEY_BUNDLE_ERROR = "com.mapbox.mapboxsdk.plugins.offline.error";
   static final String KEY_BUNDLE_MESSAGE = "com.mapbox.mapboxsdk.plugins.offline.error";

@@ -15,12 +15,14 @@ import com.mapbox.mapboxsdk.plugins.offline.model.GroupedOfflineDownloadOptions
 import com.mapbox.mapboxsdk.plugins.offline.offline.OfflinePlugin
 import com.mapbox.mapboxsdk.plugins.offline.model.NotificationOptions
 import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions
+import com.mapbox.mapboxsdk.plugins.offline.offline.GroupedOfflineDownloadChangeListener
 import com.mapbox.mapboxsdk.plugins.offline.utils.OfflineUtils
 import com.mapbox.mapboxsdk.plugins.testapp.R
 
 import java.util.ArrayList
 
 import kotlinx.android.synthetic.main.activity_offline_download.*
+import timber.log.Timber
 
 /**
  * Activity showing a form to configure the download of an offline region.
@@ -166,7 +168,32 @@ class OfflineDownloadActivity : AppCompatActivity() {
                 .offlineDownloadOptionsList(downloadList)
                 .notificationOptions(notificationOptions)
                 .build()
-        OfflinePlugin.getInstance(this).startGroupedDownload(downloadOptions)
+        val offlinePlugin = OfflinePlugin.getInstance(this)
+        offlinePlugin.addGroupedOfflineDownloadStateChangeListener(object : GroupedOfflineDownloadChangeListener {
+            override fun onProgress(groupedOfflineDownload: GroupedOfflineDownloadOptions) {
+                Timber.d("Overall progress: %.1f - current download: %s - partial progress: %d",
+                        groupedOfflineDownload.progress(), groupedOfflineDownload.currentOfflineDownload()?.regionName(),
+                        groupedOfflineDownload.currentOfflineDownload()?.progress())
+            }
+
+            override fun onPartialSuccess(groupedOfflineDownload: GroupedOfflineDownloadOptions, offlineDownload: OfflineDownloadOptions) {
+                Timber.d("Finished partial download: %s", offlineDownload)
+            }
+
+            override fun onSuccess(groupedOfflineDownload: GroupedOfflineDownloadOptions) {
+                Timber.d("Grouped download finished")
+            }
+
+            override fun onCancel(groupedOfflineDownload: GroupedOfflineDownloadOptions) {
+                Timber.d("Grouped download cancelled")
+            }
+
+            override fun onError(groupedOfflineDownload: GroupedOfflineDownloadOptions, error: String, message: String) {
+                Timber.d("Error while grouped download.\n Message: %s\nError %s\n Current download: %s",
+                        message, error, groupedOfflineDownload.currentOfflineDownload())
+            }
+        })
+        offlinePlugin.startGroupedDownload(downloadOptions)
     }
 
     private fun validCoordinates(latitudeNorth: Double, longitudeEast: Double, latitudeSouth: Double,

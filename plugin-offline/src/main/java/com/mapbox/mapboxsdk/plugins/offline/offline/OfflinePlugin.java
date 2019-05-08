@@ -223,6 +223,14 @@ public class OfflinePlugin {
     stateChangeDispatcher.onProgress(offlineDownload, progress);
   }
 
+  void onProgressGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
+    groupedChangeDispatcher.onProgress(groupedOfflineDownloadOptions);
+  }
+
+  void onPartialSuccess(GroupedOfflineDownloadOptions groupedOfflineDownload, OfflineDownloadOptions offlineDownload) {
+    groupedChangeDispatcher.onPartialSuccess(groupedOfflineDownload, offlineDownload);
+  }
+
   void onSuccessGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
     groupedChangeDispatcher.onSuccess(groupedOfflineDownloadOptions);
   }
@@ -233,9 +241,5 @@ public class OfflinePlugin {
 
   void onErrorGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions, String error, String message) {
     groupedChangeDispatcher.onError(groupedOfflineDownloadOptions, error, message);
-  }
-
-  void onProgressGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
-    groupedChangeDispatcher.onProgress(groupedOfflineDownloadOptions);
   }
 }

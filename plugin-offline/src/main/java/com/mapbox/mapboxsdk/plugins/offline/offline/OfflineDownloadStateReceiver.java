@@ -10,6 +10,7 @@ import com.mapbox.mapboxsdk.plugins.offline.model.GroupedOfflineDownloadOptions;
 import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
 
 import static com.mapbox.mapboxsdk.plugins.offline.offline.OfflineConstants.KEY_BUNDLE;
+import static com.mapbox.mapboxsdk.plugins.offline.offline.OfflineConstants.KEY_BUNDLE_OFFLINE_DOWNLOAD;
 
 public class OfflineDownloadStateReceiver extends BroadcastReceiver {
 
@@ -63,6 +64,10 @@ public class OfflineDownloadStateReceiver extends BroadcastReceiver {
         break;
       case OfflineConstants.STATE_FINISHED:
         offlinePlugin.onSuccessGroupedDownload(groupedOfflineDownload);
+        break;
+      case OfflineConstants.STATE_PARTIAL_FINISHED:
+        final OfflineDownloadOptions offlineDownload = intent.getParcelableExtra(KEY_BUNDLE_OFFLINE_DOWNLOAD);
+        offlinePlugin.onPartialSuccess(groupedOfflineDownload, offlineDownload);
         break;
       default:
         break;
@@ -136,6 +141,14 @@ public class OfflineDownloadStateReceiver extends BroadcastReceiver {
     Intent intent = new Intent(OfflineConstants.ACTION_OFFLINE);
     intent.putExtra(OfflineConstants.KEY_STATE, OfflineConstants.STATE_PROGRESS);
     intent.putExtra(KEY_BUNDLE, groupedOfflineDownload);
+    context.getApplicationContext().sendBroadcast(intent);
+  }
+
+  static void dispatchPartialSuccessBroadcast(Context context, GroupedOfflineDownloadOptions groupedOfflineDownload, OfflineDownloadOptions offlineDownload) {
+    Intent intent = new Intent(OfflineConstants.ACTION_OFFLINE);
+    intent.putExtra(OfflineConstants.KEY_STATE, OfflineConstants.STATE_PARTIAL_FINISHED);
+    intent.putExtra(KEY_BUNDLE, groupedOfflineDownload);
+    intent.putExtra(KEY_BUNDLE_OFFLINE_DOWNLOAD, offlineDownload);
     context.getApplicationContext().sendBroadcast(intent);
   }
 
