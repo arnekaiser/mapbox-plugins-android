@@ -39,6 +39,7 @@ public class OfflinePlugin {
   /**
    * Get a single instance of OfflinePlugin
    *
+   * @param context android context to create an instance
    * @return the single instance of OfflinePlugin
    * @since 0.1.0
    */

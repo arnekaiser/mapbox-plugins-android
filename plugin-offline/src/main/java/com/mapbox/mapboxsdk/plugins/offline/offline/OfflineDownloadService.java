@@ -82,10 +82,12 @@ public class OfflineDownloadService extends Service {
     getApplicationContext().registerReceiver(broadcastReceiver, filter);
   }
 
+  // TODO documentation
   /**
    * Called each time a new download is initiated. First it acquires the
-   * {@link OfflineDownloadOptions} from the intent and if found, the process of downloading the
-   * offline region carries on to the {@link #onResolveCommand(String, OfflineDownloadOptions)}.
+   * {@link OfflineDownloadOptions} or {@link GroupedOfflineDownloadOptions} from the intent and if found,
+   * the process of downloading the offline region or grouped download carries on to the
+   * {@link #onResolveCommand(String, Parcelable)}.
    * If the {@link OfflineDownloadOptions} fails to be found inside the intent, the service is
    * stopped (only if no other downloads are currently running) and throws a
    * {@link NullPointerException}.
