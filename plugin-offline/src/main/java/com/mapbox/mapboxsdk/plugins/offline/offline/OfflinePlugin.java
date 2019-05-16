@@ -35,6 +35,7 @@ public class OfflinePlugin {
   private final GroupedOfflineDownloadChangeDispatcher groupedChangeDispatcher = new GroupedOfflineDownloadChangeDispatcher();
   private final List<OfflineDownloadOptions> offlineDownloads = new ArrayList<>();
   private final Context context;
+  private boolean isGroupedDownloadActive = false;
 
   /**
    * Get a single instance of OfflinePlugin
@@ -89,6 +90,7 @@ public class OfflinePlugin {
   }
 
   public void startGroupedDownload(GroupedOfflineDownloadOptions groupedOptions) {
+    isGroupedDownloadActive = true;
     Intent intent = new Intent(context, OfflineDownloadService.class);
     intent.setAction(OfflineConstants.ACTION_START_DOWNLOAD);
     intent.putExtra(KEY_BUNDLE, groupedOptions);
@@ -169,6 +171,10 @@ public class OfflinePlugin {
     groupedChangeDispatcher.removeListener(listener);
   }
 
+  public boolean isGroupedDownloadActive() {
+    return isGroupedDownloadActive;
+  }
+
   //
   // internal API
   //
@@ -234,13 +240,16 @@ public class OfflinePlugin {
 
   void onSuccessGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
     groupedChangeDispatcher.onSuccess(groupedOfflineDownloadOptions);
+    isGroupedDownloadActive = false;
   }
 
   void onCancelGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions) {
     groupedChangeDispatcher.onCancel(groupedOfflineDownloadOptions);
+    isGroupedDownloadActive = false;
   }
 
   void onErrorGroupedDownload(GroupedOfflineDownloadOptions groupedOfflineDownloadOptions, String error, String message) {
     groupedChangeDispatcher.onError(groupedOfflineDownloadOptions, error, message);
+    isGroupedDownloadActive = false;
   }
 }

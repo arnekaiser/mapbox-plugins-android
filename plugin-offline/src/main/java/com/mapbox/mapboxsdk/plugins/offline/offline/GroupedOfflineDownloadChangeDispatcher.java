@@ -7,7 +7,7 @@ import com.mapbox.mapboxsdk.plugins.offline.model.OfflineDownloadOptions;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GroupedOfflineDownloadChangeDispatcher implements GroupedOfflineDownloadChangeListener {
+class GroupedOfflineDownloadChangeDispatcher implements GroupedOfflineDownloadChangeListener {
 
   @NonNull
   private final Set<GroupedOfflineDownloadChangeListener> changeListeners = new HashSet<>();
